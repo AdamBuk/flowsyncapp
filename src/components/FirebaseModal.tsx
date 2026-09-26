@@ -59,28 +59,35 @@ export const FirebaseModal: React.FC<FirebaseModalProps> = React.memo(({ isOpen,
         </div>
 
         {/* Status Box */}
-        <div className="p-3 rounded-lg bg-card border border-border space-y-2">
+        <div className="p-3.5 rounded-lg bg-card border border-border space-y-2.5">
           <div className="flex items-center justify-between text-xs">
-            <span className="text-zinc-400">{t('localSyncLabel')}</span>
-            <span className="inline-flex items-center gap-1.5 text-emerald-400 font-mono text-[11px]">
-              <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
-              {t('localSyncActive')}
+            <span className="text-zinc-400">Database Engine</span>
+            <span className="inline-flex items-center gap-1.5 text-accent font-mono text-[11px]">
+              Google Cloud Firestore
             </span>
           </div>
 
-          <div className="flex items-center justify-between text-xs pt-1 border-t border-border/50">
-            <span className="text-zinc-400">{t('firestoreSyncLabel')}</span>
-            <span className={`inline-flex items-center gap-1.5 font-mono text-[11px] ${
-              isCloud ? 'text-emerald-400' : 'text-zinc-500'
-            }`}>
-              <span className={`w-1.5 h-1.5 rounded-full ${isCloud ? 'bg-emerald-500' : 'bg-zinc-600'}`} />
-              {isCloud ? t('firestoreConnected') : t('firestoreNotConfigured')}
+          <div className="flex items-center justify-between text-xs pt-1.5 border-t border-border/50">
+            <span className="text-zinc-400">Project ID</span>
+            <span className="text-zinc-200 font-mono text-[11px]">
+              flowsync-app-d7a67
+            </span>
+          </div>
+
+          <div className="flex items-center justify-between text-xs pt-1.5 border-t border-border/50">
+            <span className="text-zinc-400">Real-Time Sync</span>
+            <span className="inline-flex items-center gap-1.5 font-mono text-[11px] text-emerald-400">
+              <span className="relative flex h-2 w-2">
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-60"></span>
+                <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
+              </span>
+              Active (onSnapshot Listener)
             </span>
           </div>
         </div>
 
         <p className="text-xs text-zinc-400 leading-relaxed">
-          {t('firebaseDescription')}
+          FlowSync is connected directly to your production Firestore database. All task additions, modifications, reordering, subtasks, and deletions are synchronized across all devices in real time over the internet.
         </p>
 
         {/* Custom Firebase Form */}

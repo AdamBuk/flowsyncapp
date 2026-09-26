@@ -175,11 +175,21 @@ export const App: React.FC = () => {
     realtimeSync.updateTask(activeProjectId, taskId, { ...updates, updatedAt: now });
   }, [activeProjectId]);
 
-  // Soft delete task (moves to trash)
+  const [deletedTasks, setDeletedTasks] = useState<Task[]>([]);
+
+  // 3. Subscribe to Global Trash across all clients in Real-Time
+  useEffect(() => {
+    const unsub = realtimeSync.subscribeToTrash((trash) => {
+      setDeletedTasks(trash);
+    });
+    return () => unsub();
+  }, []);
+
+  // Soft delete task (moves to trash in Firestore)
   const handleDeleteTask = useCallback((taskId: string) => {
     if (selectedTaskId === taskId) setSelectedTaskId(null);
     const now = Date.now();
-    // 0ms instant optimistic UI
+    // Instant optimistic update
     setTasks((prev) =>
       prev.map((t) => (t.id === taskId ? { ...t, isDeleted: true, deletedAt: now, updatedAt: now } : t))
     );
@@ -188,89 +198,22 @@ export const App: React.FC = () => {
 
   // Restore task from trash
   const handleRestoreTask = useCallback((taskId: string, projectId: string) => {
-    const now = Date.now();
-    // 1. Ensure project exists in project list
     realtimeSync.ensureProject(projectId);
-    setProjects(realtimeSync.loadLocalProjects());
-
-    // 2. Update task state
-    if (projectId === activeProjectId) {
-      setTasks((prev) =>
-        prev.map((t) => (t.id === taskId ? { ...t, isDeleted: false, deletedAt: null, updatedAt: now } : t))
-      );
-    } else {
-      const projKey = `flow_project_tasks_v3_${projectId}`;
-      try {
-        const raw = localStorage.getItem(projKey);
-        if (raw) {
-          const parsed: Task[] = JSON.parse(raw);
-          const updated = parsed.map((t) =>
-            t.id === taskId ? { ...t, isDeleted: false, deletedAt: null, updatedAt: now } : t
-          );
-          localStorage.setItem(projKey, JSON.stringify(updated));
-        }
-      } catch {}
-      // Force trigger state update for allDeletedTasks recalculation
-      setTasks((prev) => [...prev]);
-    }
     realtimeSync.restoreTask(projectId, taskId);
-  }, [activeProjectId]);
+  }, []);
 
   // Permanently delete task from trash
   const handlePermanentDeleteTask = useCallback((taskId: string, projectId: string) => {
-    if (projectId === activeProjectId) {
-      setTasks((prev) => prev.filter((t) => t.id !== taskId));
-    } else {
-      const projKey = `flow_project_tasks_v3_${projectId}`;
-      try {
-        const raw = localStorage.getItem(projKey);
-        if (raw) {
-          const parsed: Task[] = JSON.parse(raw);
-          const updated = parsed.filter((t) => t.id !== taskId);
-          localStorage.setItem(projKey, JSON.stringify(updated));
-        }
-      } catch {}
-      setTasks((prev) => [...prev]);
-    }
     realtimeSync.permanentlyDeleteTask(projectId, taskId);
-  }, [activeProjectId]);
+  }, []);
 
-  // All deleted tasks across current project and local storage
-  const allDeletedTasks = useMemo(() => {
-    const deletedMap = new Map<string, Task>();
-    // 1. Current active project tasks
-    tasks.filter((t) => t.isDeleted).forEach((t) => deletedMap.set(t.id, t));
-
-    // 2. Scan all project caches in localStorage for global Trash collection
-    try {
-      for (let i = 0; i < localStorage.length; i++) {
-        const key = localStorage.key(i);
-        if (key && key.startsWith('flow_project_tasks_v3_')) {
-          const raw = localStorage.getItem(key);
-          if (raw) {
-            const parsed: Task[] = JSON.parse(raw);
-            if (Array.isArray(parsed)) {
-              parsed.filter((t) => t.isDeleted).forEach((t) => {
-                if (!deletedMap.has(t.id)) deletedMap.set(t.id, t);
-              });
-            }
-          }
-        }
-      }
-    } catch {}
-
-    const list = Array.from(deletedMap.values());
-    list.sort((a, b) => (b.deletedAt ?? b.updatedAt) - (a.deletedAt ?? a.updatedAt));
-    return list;
-  }, [tasks]);
+  // All deleted tasks across all projects from real-time Firestore
+  const allDeletedTasks = deletedTasks;
 
   // Empty trash permanently
   const handleEmptyTrash = useCallback(() => {
-    allDeletedTasks.forEach((t) => {
-      realtimeSync.permanentlyDeleteTask(t.projectId, t.id);
-    });
-    setTasks((prev) => prev.filter((t) => !t.isDeleted));
-  }, [allDeletedTasks]);
+    realtimeSync.emptyTrash();
+  }, []);
 
   // Drag and Drop reordering & moving across sections
   const handleMoveTaskToSection = useCallback((
