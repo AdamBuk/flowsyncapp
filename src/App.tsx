@@ -43,6 +43,7 @@ export const App: React.FC = () => {
   const [isTeamModalOpen, setIsTeamModalOpen] = useState(false);
   const [teamMembers, setTeamMembers] = useState<TeamMember[]>([]);
   const [selectedTaskId, setSelectedTaskId] = useState<string | null>(null);
+  const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false);
 
   const handleViewModeChange = useCallback((mode: ViewMode) => {
     setViewMode(mode);
@@ -73,6 +74,7 @@ export const App: React.FC = () => {
         setActiveProjectId(proj);
         setIsTrashActive(false);
         setSelectedTaskId(null);
+        setIsMobileSidebarOpen(false);
       }
     };
     window.addEventListener('popstate', onPopState);
@@ -93,6 +95,7 @@ export const App: React.FC = () => {
     setActiveProjectId(projectId);
     setIsTrashActive(false);
     setSelectedTaskId(null);
+    setIsMobileSidebarOpen(false);
     const url = new URL(window.location.href);
     url.searchParams.set('project', projectId);
     window.history.pushState({}, '', url.toString());
@@ -369,8 +372,8 @@ export const App: React.FC = () => {
   }, []);
 
   return (
-    <div className="flex h-screen w-screen bg-app text-zinc-100 font-sans overflow-hidden">
-      {/* 1. Left Navigation Sidebar */}
+    <div className="flex h-screen w-full bg-app text-zinc-100 font-sans overflow-hidden">
+      {/* 1. Left Navigation Sidebar (Desktop + Mobile Drawer) */}
       <Sidebar
         projects={projects}
         activeProjectId={activeProjectId}
@@ -383,11 +386,13 @@ export const App: React.FC = () => {
         onDeleteProject={handleDeleteProject}
         onOpenFirebaseModal={handleOpenFirebaseModal}
         onOpenTeamModal={() => setIsTeamModalOpen(true)}
+        isMobileOpen={isMobileSidebarOpen}
+        onCloseMobile={() => setIsMobileSidebarOpen(false)}
       />
 
       {/* 2. Main Content Area */}
-      <div className="flex-1 flex flex-col h-full overflow-hidden">
-        {/* Top Bar Header with Project Controls & View Toggle */}
+      <div className="flex-1 flex flex-col h-full overflow-hidden min-w-0">
+        {/* Top Bar Header with Project Controls, Hamburger & View Toggle */}
         <TopBar
           project={activeProject}
           totalCount={isTrashActive ? allDeletedTasks.length : activeTasks.length}
@@ -402,10 +407,11 @@ export const App: React.FC = () => {
           viewMode={viewMode}
           onViewModeChange={handleViewModeChange}
           isTrashActive={isTrashActive}
+          onToggleMobileSidebar={() => setIsMobileSidebarOpen((prev) => !prev)}
         />
 
         {/* Dynamic Views: Trash View vs Board View vs List View */}
-        <main className="flex-1 overflow-y-auto px-6 py-8">
+        <main className="flex-1 overflow-y-auto px-3.5 sm:px-6 py-4 sm:py-8">
           {isTrashActive ? (
             /* Trash / Recovery View */
             <TrashView

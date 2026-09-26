@@ -42,6 +42,10 @@ export default {
           '0%': { transform: 'translateX(100%)' },
           '100%': { transform: 'translateX(0)' },
         },
+        slideRight: {
+          '0%': { transform: 'translateX(-100%)' },
+          '100%': { transform: 'translateX(0)' },
+        },
         fadeIn: {
           '0%': { opacity: '0' },
           '100%': { opacity: '1' },
@@ -53,6 +57,7 @@ export default {
       },
       animation: {
         slideLeft: 'slideLeft 0.28s cubic-bezier(0.16, 1, 0.3, 1)',
+        slideRight: 'slideRight 0.28s cubic-bezier(0.16, 1, 0.3, 1)',
         fadeIn: 'fadeIn 0.18s ease-out',
         scaleIn: 'scaleIn 0.2s cubic-bezier(0.16, 1, 0.3, 1)',
       }

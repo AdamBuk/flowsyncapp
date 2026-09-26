@@ -119,7 +119,7 @@ export const DatePicker: React.FC<DatePickerProps> = React.memo(({
       <button
         type="button"
         onClick={() => setIsOpen((prev) => !prev)}
-        className={`w-full flex items-center justify-between gap-2 px-3 py-1.5 rounded-lg bg-card border text-xs transition-colors outline-none select-none ${
+        className={`w-full flex items-center justify-between gap-2 px-3 py-2 sm:py-1.5 h-9 sm:h-8 rounded-lg bg-card border text-xs transition-colors outline-none select-none ${
           isOpen ? 'border-accent ring-1 ring-accent/30' : 'border-border hover:border-border-active'
         } ${value ? 'text-zinc-100 font-medium' : 'text-zinc-400'}`}
       >
@@ -134,7 +134,7 @@ export const DatePicker: React.FC<DatePickerProps> = React.memo(({
               e.stopPropagation();
               onChange(null);
             }}
-            className="p-0.5 text-zinc-500 hover:text-zinc-200 rounded hover:bg-zinc-800 transition-colors"
+            className="p-1 text-zinc-500 hover:text-zinc-200 rounded hover:bg-zinc-800 transition-colors"
             title="Clear date"
           >
             <X className="w-3 h-3" />
@@ -144,27 +144,27 @@ export const DatePicker: React.FC<DatePickerProps> = React.memo(({
 
       {/* Custom Dark Popover Calendar */}
       {isOpen && (
-        <div className="absolute left-0 mt-1.5 z-50 w-64 bg-zinc-900 border border-border rounded-xl shadow-dropdown p-3 animate-fadeIn text-zinc-200">
+        <div className="absolute right-0 sm:left-0 mt-1.5 z-50 w-72 sm:w-64 max-w-[calc(100vw-32px)] bg-zinc-900 border border-border rounded-xl shadow-dropdown p-3 animate-fadeIn text-zinc-200">
           {/* Quick Presets */}
           <div className="flex items-center gap-1 pb-2.5 mb-2.5 border-b border-border/60 text-[11px] font-mono">
             <button
               type="button"
               onClick={() => handleQuickPreset(0)}
-              className="flex-1 px-2 py-1 rounded bg-zinc-800/80 hover:bg-indigo-500/20 text-zinc-300 hover:text-indigo-200 transition-colors text-center"
+              className="flex-1 px-2 py-1.5 sm:py-1 rounded bg-zinc-800/80 hover:bg-indigo-500/20 text-zinc-300 hover:text-indigo-200 transition-colors text-center min-h-[30px] sm:min-h-0"
             >
               {t('today')}
             </button>
             <button
               type="button"
               onClick={() => handleQuickPreset(1)}
-              className="flex-1 px-2 py-1 rounded bg-zinc-800/80 hover:bg-indigo-500/20 text-zinc-300 hover:text-indigo-200 transition-colors text-center"
+              className="flex-1 px-2 py-1.5 sm:py-1 rounded bg-zinc-800/80 hover:bg-indigo-500/20 text-zinc-300 hover:text-indigo-200 transition-colors text-center min-h-[30px] sm:min-h-0"
             >
               Tomorrow
             </button>
             <button
               type="button"
               onClick={() => handleQuickPreset(7)}
-              className="flex-1 px-2 py-1 rounded bg-zinc-800/80 hover:bg-indigo-500/20 text-zinc-300 hover:text-indigo-200 transition-colors text-center"
+              className="flex-1 px-2 py-1.5 sm:py-1 rounded bg-zinc-800/80 hover:bg-indigo-500/20 text-zinc-300 hover:text-indigo-200 transition-colors text-center min-h-[30px] sm:min-h-0"
             >
               +1 Week
             </button>
@@ -175,7 +175,7 @@ export const DatePicker: React.FC<DatePickerProps> = React.memo(({
             <span className="text-xs font-semibold text-zinc-200">
               {monthNames[month]} {year}
             </span>
-            <div className="flex items-center gap-0.5">
+            <div className="flex items-center gap-1">
               <button
                 type="button"
                 onClick={handlePrevMonth}
@@ -210,7 +210,7 @@ export const DatePicker: React.FC<DatePickerProps> = React.memo(({
           <div className="grid grid-cols-7 gap-1">
             {calendarCells.map((day, idx) => {
               if (day === null) {
-                return <div key={`empty-${idx}`} className="h-7 w-7" />;
+                return <div key={`empty-${idx}`} className="h-8 w-8 sm:h-7 sm:w-7" />;
               }
 
               const cellDate = new Date(year, month, day);
@@ -223,7 +223,7 @@ export const DatePicker: React.FC<DatePickerProps> = React.memo(({
                   key={cellDateStr}
                   type="button"
                   onClick={() => handleSelectDay(day)}
-                  className={`h-7 w-7 text-xs font-mono rounded-lg flex items-center justify-center transition-all select-none ${
+                  className={`h-8 w-8 sm:h-7 sm:w-7 mx-auto text-xs font-mono rounded-lg flex items-center justify-center transition-all select-none ${
                     isSelected
                       ? 'bg-accent text-white font-semibold shadow-subtle'
                       : isToday

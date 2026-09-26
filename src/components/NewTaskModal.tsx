@@ -71,12 +71,17 @@ export const NewTaskModal: React.FC<NewTaskModalProps> = React.memo(({ isOpen, o
   ];
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-fadeIn">
-      <div className="bg-surface border border-border w-full max-w-lg rounded-xl p-5 shadow-dropdown space-y-4">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-2.5 sm:p-4 bg-black/60 backdrop-blur-sm animate-fadeIn overflow-y-auto">
+      <div className="bg-surface border border-border w-[95%] sm:w-full sm:max-w-lg max-h-[92vh] overflow-y-auto rounded-xl sm:rounded-2xl p-4 sm:p-5 shadow-dropdown space-y-4 my-auto">
         {/* Header */}
         <div className="flex items-center justify-between pb-3 border-b border-border">
           <h2 className="text-sm font-semibold text-zinc-100">{t('createNewTaskTitle')}</h2>
-          <button onClick={onClose} className="text-zinc-500 hover:text-zinc-200" title={t('close')}>
+          <button
+            type="button"
+            onClick={onClose}
+            className="p-1 -mr-1 text-zinc-400 hover:text-zinc-100 hover:bg-card rounded-lg transition-colors"
+            title={t('close')}
+          >
             <X className="w-4 h-4" />
           </button>
         </div>
@@ -93,7 +98,7 @@ export const NewTaskModal: React.FC<NewTaskModalProps> = React.memo(({ isOpen, o
               onChange={(e) => setTitle(e.target.value)}
               placeholder={t('taskTitlePlaceholder')}
               autoFocus
-              className="w-full bg-card border border-border rounded-lg px-3 py-2 text-sm text-zinc-100 outline-none focus:border-border-active"
+              className="w-full bg-card border border-border rounded-lg px-3 py-2 text-sm text-zinc-100 outline-none focus:border-border-active transition-colors"
             />
           </div>
 
@@ -107,7 +112,7 @@ export const NewTaskModal: React.FC<NewTaskModalProps> = React.memo(({ isOpen, o
               onChange={(e) => setDescription(e.target.value)}
               rows={2}
               placeholder={t('taskDescPlaceholder')}
-              className="w-full bg-card border border-border rounded-lg px-3 py-2 text-xs text-zinc-200 outline-none focus:border-border-active resize-none"
+              className="w-full bg-card border border-border rounded-lg px-3 py-2 text-xs text-zinc-200 outline-none focus:border-border-active resize-none transition-colors"
             />
           </div>
 
@@ -118,43 +123,43 @@ export const NewTaskModal: React.FC<NewTaskModalProps> = React.memo(({ isOpen, o
               <label className="block text-[11px] font-mono text-zinc-400 uppercase tracking-wider mb-1.5">
                 {t('status')}
               </label>
-              <div className="flex items-center bg-card border border-border rounded-lg p-1 gap-1">
+              <div className="grid grid-cols-3 gap-1 bg-card border border-border rounded-lg p-1">
                 {statusOptions.map((opt) => (
                   <button
                     key={opt.value}
                     type="button"
                     onClick={() => setStatus(opt.value)}
-                    className={`flex-1 flex items-center justify-center gap-1.5 py-1.5 px-2 rounded-md text-xs transition-colors select-none ${
+                    className={`flex items-center justify-center gap-1 sm:gap-1.5 py-2 sm:py-1.5 px-1.5 sm:px-2 rounded-md text-xs transition-colors select-none min-h-[34px] sm:min-h-0 ${
                       status === opt.value
                         ? 'bg-zinc-800 text-zinc-100 font-medium shadow-subtle border border-border/80'
                         : 'text-zinc-400 hover:text-zinc-200 hover:bg-zinc-800/40'
                     }`}
                   >
                     {opt.icon}
-                    <span>{opt.label}</span>
+                    <span className="truncate">{opt.label}</span>
                   </button>
                 ))}
               </div>
             </div>
 
-            {/* Custom Priority Selector */}
+            {/* Custom Priority Selector (2 cols on mobile, 4 on desktop) */}
             <div>
               <label className="block text-[11px] font-mono text-zinc-400 uppercase tracking-wider mb-1.5">
                 {t('priority')}
               </label>
-              <div className="grid grid-cols-4 gap-1 bg-card border border-border rounded-lg p-1">
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-1 bg-card border border-border rounded-lg p-1">
                 {priorityOptions.map((opt) => (
                   <button
                     key={opt.value}
                     type="button"
                     onClick={() => setPriority(opt.value)}
-                    className={`flex items-center justify-center gap-1 py-1 px-1.5 rounded-md text-[11px] transition-colors select-none ${
+                    className={`flex items-center justify-center gap-1 py-1.5 sm:py-1 px-2 rounded-md text-xs sm:text-[11px] transition-colors select-none min-h-[32px] sm:min-h-0 ${
                       priority === opt.value
                         ? 'bg-zinc-800 text-zinc-100 font-semibold shadow-subtle border border-border/80'
                         : 'text-zinc-400 hover:text-zinc-200 hover:bg-zinc-800/40'
                     }`}
                   >
-                    <Flag className="w-2.5 h-2.5" />
+                    <Flag className="w-2.5 h-2.5 flex-shrink-0" />
                     <span>{opt.label}</span>
                   </button>
                 ))}
@@ -192,17 +197,17 @@ export const NewTaskModal: React.FC<NewTaskModalProps> = React.memo(({ isOpen, o
           </div>
 
           {/* Action Buttons */}
-          <div className="flex items-center justify-end gap-2 pt-2 border-t border-border">
+          <div className="flex items-center justify-end gap-2.5 pt-2 border-t border-border">
             <button
               type="button"
               onClick={onClose}
-              className="px-3 py-1.5 bg-card border border-border text-zinc-300 text-xs rounded-lg hover:text-zinc-100 transition-colors"
+              className="px-3.5 py-2 sm:py-1.5 bg-card border border-border text-zinc-300 text-xs rounded-lg hover:text-zinc-100 hover:border-border-active transition-colors min-h-[36px] sm:min-h-0"
             >
               {t('cancel')}
             </button>
             <button
               type="submit"
-              className="px-3.5 py-1.5 bg-accent text-white text-xs font-medium rounded-lg hover:bg-accent-hover transition-colors shadow-subtle"
+              className="px-4 py-2 sm:py-1.5 bg-accent text-white text-xs font-medium rounded-lg hover:bg-accent-hover transition-colors shadow-subtle min-h-[36px] sm:min-h-0"
             >
               {t('createTaskBtn')}
             </button>

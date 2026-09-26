@@ -70,7 +70,7 @@ export const AssigneeSelect: React.FC<AssigneeSelectProps> = React.memo(({
       <button
         type="button"
         onClick={() => setIsOpen((prev) => !prev)}
-        className="w-full h-8 px-2.5 bg-card border border-border hover:border-border-active rounded-lg text-xs text-zinc-200 transition-colors flex items-center justify-between gap-2 select-none outline-none focus:border-border-active"
+        className="w-full h-9 sm:h-8 px-2.5 bg-card border border-border hover:border-border-active rounded-lg text-xs text-zinc-200 transition-colors flex items-center justify-between gap-2 select-none outline-none focus:border-border-active"
         aria-haspopup="listbox"
         aria-expanded={isOpen}
       >
@@ -101,7 +101,7 @@ export const AssigneeSelect: React.FC<AssigneeSelectProps> = React.memo(({
           {selectedName && (
             <span
               onClick={handleClear}
-              className="p-0.5 text-zinc-500 hover:text-zinc-300 rounded hover:bg-zinc-800 transition-colors cursor-pointer"
+              className="p-1 text-zinc-500 hover:text-zinc-300 rounded hover:bg-zinc-800 transition-colors cursor-pointer"
               title="Clear assignee"
             >
               <X className="w-3 h-3" />
@@ -119,7 +119,7 @@ export const AssigneeSelect: React.FC<AssigneeSelectProps> = React.memo(({
       {isOpen && (
         <div
           role="listbox"
-          className="absolute left-0 top-full mt-1.5 w-full min-w-[200px] z-50 bg-[#14151c] border border-border rounded-xl shadow-dropdown p-1.5 space-y-0.5 animate-scaleIn max-h-60 overflow-y-auto custom-scrollbar"
+          className="absolute left-0 top-full mt-1.5 w-full min-w-[200px] max-w-[calc(100vw-32px)] z-50 bg-[#14151c] border border-border rounded-xl shadow-dropdown p-1.5 space-y-0.5 animate-scaleIn max-h-60 overflow-y-auto custom-scrollbar"
         >
           {/* Unassigned Option */}
           <button
@@ -127,7 +127,7 @@ export const AssigneeSelect: React.FC<AssigneeSelectProps> = React.memo(({
             role="option"
             aria-selected={!selectedName}
             onClick={() => handleSelect(undefined)}
-            className={`w-full flex items-center justify-between px-2.5 py-1.5 rounded-lg text-xs transition-colors select-none ${
+            className={`w-full flex items-center justify-between px-2.5 py-2 sm:py-1.5 rounded-lg text-xs transition-colors select-none min-h-[36px] sm:min-h-0 ${
               !selectedName
                 ? 'bg-zinc-800/60 text-zinc-100 font-medium'
                 : 'text-zinc-400 hover:text-zinc-200 hover:bg-zinc-800/40'
@@ -144,7 +144,7 @@ export const AssigneeSelect: React.FC<AssigneeSelectProps> = React.memo(({
 
           {/* If current assignee was deleted from team, show it as an option so user sees who is assigned */}
           {selectedName && isSelectedDeleted && (
-            <div className="my-1 px-2.5 py-1.5 rounded-lg text-xs bg-zinc-800/40 border border-zinc-700/50 flex items-center justify-between text-zinc-300">
+            <div className="my-1 px-2.5 py-2 sm:py-1.5 rounded-lg text-xs bg-zinc-800/40 border border-zinc-700/50 flex items-center justify-between text-zinc-300 min-h-[36px] sm:min-h-0">
               <div className="flex items-center gap-2 min-w-0">
                 <div className="flex items-center justify-center w-5 h-5 rounded-full bg-zinc-800 text-[10px] font-medium text-zinc-400 border border-zinc-700 flex-shrink-0">
                   {initial}
@@ -178,7 +178,7 @@ export const AssigneeSelect: React.FC<AssigneeSelectProps> = React.memo(({
                   role="option"
                   aria-selected={isSelected}
                   onClick={() => handleSelect(member.name)}
-                  className={`w-full flex items-center justify-between px-2.5 py-1.5 rounded-lg text-xs transition-colors select-none ${
+                  className={`w-full flex items-center justify-between px-2.5 py-2 sm:py-1.5 rounded-lg text-xs transition-colors select-none min-h-[36px] sm:min-h-0 ${
                     isSelected
                       ? 'bg-zinc-800/70 text-zinc-100 font-medium'
                       : 'text-zinc-300 hover:text-zinc-100 hover:bg-zinc-800/40'

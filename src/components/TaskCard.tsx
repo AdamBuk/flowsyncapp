@@ -103,7 +103,7 @@ export const TaskCard: React.FC<TaskCardProps> = React.memo(({
         onDrop?.(e, task.id);
       }}
       onClick={() => onSelectTask(task)}
-      className={`group relative bg-card border rounded-xl p-3 transition-all duration-150 shadow-subtle cursor-pointer select-none ${
+      className={`group relative bg-card border rounded-xl p-3.5 sm:p-3 transition-all duration-150 shadow-subtle cursor-pointer select-none ${
         isSelfDragging
           ? 'opacity-40 border-dashed border-accent scale-[0.98]'
           : isDragOverTarget
@@ -114,38 +114,41 @@ export const TaskCard: React.FC<TaskCardProps> = React.memo(({
       }`}
     >
       <div className="flex items-start gap-2.5">
-        {/* Drag Handle Indicator */}
+        {/* Drag Handle Indicator (Desktop only) */}
         <div
-          className="flex-shrink-0 mt-0.5 text-zinc-600 opacity-0 group-hover:opacity-100 transition-opacity cursor-grab active:cursor-grabbing"
+          className="hidden sm:block flex-shrink-0 mt-0.5 text-zinc-600 opacity-0 group-hover:opacity-100 transition-opacity cursor-grab active:cursor-grabbing"
           title="Drag to reorder"
           onClick={(e) => e.stopPropagation()}
         >
           <GripVertical className="w-3.5 h-3.5" />
         </div>
 
-        {/* Status Checkbox Button */}
-        <button
-          type="button"
-          onClick={handleCheckboxClick}
-          className={`flex-shrink-0 mt-0.5 w-4 h-4 rounded-md border flex items-center justify-center transition-all duration-150 ${
-            isDone
-              ? 'bg-zinc-700 border-zinc-600 text-zinc-100'
-              : task.status === 'in_progress'
-              ? 'border-accent text-accent bg-accent/10'
-              : 'border-zinc-700 hover:border-zinc-400 bg-surface'
-          }`}
-          title={isDone ? t('todo') : t('done')}
-        >
-          {isDone ? (
-            <Check className="w-2.5 h-2.5 stroke-[2.5]" />
-          ) : task.status === 'in_progress' ? (
-            <CircleDot className="w-2.5 h-2.5 stroke-[2.5]" />
-          ) : null}
-        </button>
+        {/* Status Checkbox Button with enlarged touch hit area */}
+        <div className="flex-shrink-0 mt-0.5 p-1 -m-1 sm:p-0 sm:m-0 flex items-center justify-center">
+          <button
+            type="button"
+            onClick={handleCheckboxClick}
+            className={`w-5 h-5 sm:w-4 sm:h-4 rounded-md border flex items-center justify-center transition-all duration-150 ${
+              isDone
+                ? 'bg-zinc-700 border-zinc-600 text-zinc-100'
+                : task.status === 'in_progress'
+                ? 'border-accent text-accent bg-accent/10'
+                : 'border-zinc-700 hover:border-zinc-400 bg-surface'
+            }`}
+            title={isDone ? t('todo') : t('done')}
+            aria-label={isDone ? 'Mark as todo' : 'Mark as done'}
+          >
+            {isDone ? (
+              <Check className="w-3 h-3 sm:w-2.5 sm:h-2.5 stroke-[2.5]" />
+            ) : task.status === 'in_progress' ? (
+              <CircleDot className="w-3 h-3 sm:w-2.5 sm:h-2.5 stroke-[2.5]" />
+            ) : null}
+          </button>
+        </div>
 
         {/* Task Details */}
         <div className="flex-1 min-w-0">
-          <div className="flex items-baseline justify-between gap-3">
+          <div className="flex items-start justify-between gap-2.5">
             <span
               className={`text-sm font-normal text-zinc-200 tracking-tight leading-relaxed transition-all duration-200 break-words ${
                 isDone ? 'line-through text-zinc-500' : ''
@@ -154,8 +157,8 @@ export const TaskCard: React.FC<TaskCardProps> = React.memo(({
               {task.title}
             </span>
 
-            {/* Secondary Actions (Visible on hover) */}
-            <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity duration-150 flex-shrink-0">
+            {/* Secondary Actions (Always accessible on touch/mobile, hover on desktop) */}
+            <div className="flex items-center gap-1 opacity-100 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity duration-150 flex-shrink-0">
               <button
                 type="button"
                 onClick={(e) => {
@@ -163,7 +166,7 @@ export const TaskCard: React.FC<TaskCardProps> = React.memo(({
                   const next: TaskStatus = task.status === 'todo' ? 'in_progress' : task.status === 'in_progress' ? 'done' : 'todo';
                   onToggleStatus(task.id, next);
                 }}
-                className="px-1.5 py-0.5 bg-surface border border-border hover:border-border-active rounded text-[11px] font-mono text-zinc-400 hover:text-zinc-200 transition-colors"
+                className="px-2 py-1 sm:px-1.5 sm:py-0.5 bg-surface border border-border hover:border-border-active rounded text-[11px] font-mono text-zinc-400 hover:text-zinc-200 transition-colors min-h-[26px] sm:min-h-0 flex items-center justify-center"
                 title="Click to cycle status"
               >
                 {task.status === 'todo' ? t('todo') : task.status === 'in_progress' ? t('inProgress') : t('done')}
@@ -175,7 +178,7 @@ export const TaskCard: React.FC<TaskCardProps> = React.memo(({
                   e.stopPropagation();
                   onDelete(task.id);
                 }}
-                className="p-1 text-zinc-500 hover:text-rose-400 hover:bg-rose-500/10 transition-colors rounded"
+                className="p-1.5 sm:p-1 text-zinc-500 hover:text-rose-400 hover:bg-rose-500/10 transition-colors rounded min-w-[28px] min-h-[28px] flex items-center justify-center"
                 title={t('deleteTask')}
               >
                 <Trash2 className="w-3.5 h-3.5 stroke-[1.5]" />
@@ -245,7 +248,7 @@ export const TaskCard: React.FC<TaskCardProps> = React.memo(({
                   e.stopPropagation();
                   onTagClick?.(tag);
                 }}
-                className="px-1.5 py-0.5 text-[10px] font-mono text-zinc-400 border border-zinc-800/80 rounded hover:border-zinc-700 hover:text-zinc-200 transition-colors bg-surface/50"
+                className="px-2 py-0.5 sm:px-1.5 sm:py-0.5 text-[10px] font-mono text-zinc-400 border border-zinc-800/80 rounded hover:border-zinc-700 hover:text-zinc-200 transition-colors bg-surface/50 min-h-[22px] inline-flex items-center"
               >
                 #{tag}
               </button>

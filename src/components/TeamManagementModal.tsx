@@ -32,8 +32,8 @@ export const TeamManagementModal: React.FC<TeamManagementModalProps> = React.mem
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-fadeIn">
-      <div className="bg-surface border border-border w-full max-w-md rounded-2xl p-5 shadow-dropdown space-y-5 animate-scaleIn">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-2.5 sm:p-4 bg-black/60 backdrop-blur-sm animate-fadeIn overflow-y-auto">
+      <div className="bg-surface border border-border w-[95%] sm:w-full sm:max-w-md max-h-[92vh] overflow-y-auto rounded-xl sm:rounded-2xl p-4 sm:p-5 shadow-dropdown space-y-4 sm:space-y-5 animate-scaleIn my-auto">
         {/* Header */}
         <div className="flex items-center justify-between pb-3 border-b border-border">
           <div className="flex items-center gap-2.5">
@@ -48,8 +48,9 @@ export const TeamManagementModal: React.FC<TeamManagementModalProps> = React.mem
             </div>
           </div>
           <button
+            type="button"
             onClick={onClose}
-            className="p-1 text-zinc-500 hover:text-zinc-200 rounded-lg hover:bg-card transition-colors"
+            className="p-1 -mr-1 text-zinc-400 hover:text-zinc-100 hover:bg-card rounded-lg transition-colors"
             title={t('close')}
           >
             <X className="w-4 h-4" />
@@ -61,19 +62,19 @@ export const TeamManagementModal: React.FC<TeamManagementModalProps> = React.mem
           <label className="block text-[11px] font-mono text-zinc-400 uppercase tracking-wider">
             {t('addMemberPlaceholder')}
           </label>
-          <div className="flex gap-2">
+          <div className="flex flex-col sm:flex-row gap-2">
             <input
               type="text"
               value={newMemberName}
               onChange={(e) => setNewMemberName(e.target.value)}
               placeholder="e.g. Alex, Sarah..."
               autoFocus
-              className="flex-1 bg-card border border-border rounded-lg px-3 py-2 text-xs text-zinc-100 placeholder-zinc-500 outline-none focus:border-border-active transition-colors"
+              className="flex-1 bg-card border border-border rounded-lg px-3 py-2 text-xs text-zinc-100 placeholder-zinc-500 outline-none focus:border-border-active transition-colors min-h-[38px] sm:min-h-0"
             />
             <button
               type="submit"
               disabled={!newMemberName.trim()}
-              className="px-3.5 py-2 bg-accent text-white text-xs font-medium rounded-lg hover:bg-accent-hover transition-colors shadow-subtle inline-flex items-center gap-1.5 disabled:opacity-40 disabled:cursor-not-allowed select-none"
+              className="px-3.5 py-2 bg-accent text-white text-xs font-medium rounded-lg hover:bg-accent-hover transition-colors shadow-subtle inline-flex items-center justify-center gap-1.5 disabled:opacity-40 disabled:cursor-not-allowed select-none min-h-[38px] sm:min-h-0 flex-shrink-0"
             >
               <Plus className="w-3.5 h-3.5" />
               <span>{t('addMemberBtn')}</span>
@@ -93,7 +94,7 @@ export const TeamManagementModal: React.FC<TeamManagementModalProps> = React.mem
             </span>
           </div>
 
-          <div className="max-h-64 overflow-y-auto space-y-1 pr-1 custom-scrollbar">
+          <div className="max-h-60 overflow-y-auto space-y-1.5 pr-0.5 custom-scrollbar">
             {teamMembers.length === 0 ? (
               <div className="py-8 text-center text-xs text-zinc-500 border border-dashed border-border rounded-xl">
                 {t('noMembersYet')}
@@ -119,7 +120,7 @@ export const TeamManagementModal: React.FC<TeamManagementModalProps> = React.mem
                   <button
                     type="button"
                     onClick={() => onDeleteMember(member.id)}
-                    className="p-1.5 text-zinc-500 hover:text-rose-400 hover:bg-rose-500/10 rounded transition-colors opacity-70 group-hover:opacity-100"
+                    className="p-2 sm:p-1.5 text-zinc-500 hover:text-rose-400 hover:bg-rose-500/10 rounded transition-colors opacity-90 sm:opacity-70 sm:group-hover:opacity-100 min-w-[32px] min-h-[32px] flex items-center justify-center"
                     title={`Remove ${member.name}`}
                   >
                     <Trash2 className="w-3.5 h-3.5 stroke-[1.8]" />
@@ -135,7 +136,7 @@ export const TeamManagementModal: React.FC<TeamManagementModalProps> = React.mem
           <button
             type="button"
             onClick={onClose}
-            className="px-3.5 py-1.5 bg-card border border-border text-zinc-300 text-xs rounded-lg hover:text-zinc-100 transition-colors"
+            className="px-4 py-2 sm:py-1.5 bg-card border border-border text-zinc-300 text-xs rounded-lg hover:text-zinc-100 hover:border-border-active transition-colors min-h-[36px] sm:min-h-0"
           >
             {t('close')}
           </button>

@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { Share2, Check, Search, Plus, SlidersHorizontal, X, List, Columns3, Trash2, ChevronDown } from 'lucide-react';
+import { Share2, Check, Search, Plus, SlidersHorizontal, X, List, Columns3, Trash2, ChevronDown, Menu } from 'lucide-react';
 import { Project, SortOption, ViewMode } from '../types';
 import { useI18n } from '../i18n';
 
@@ -17,6 +17,7 @@ interface TopBarProps {
   viewMode: ViewMode;
   onViewModeChange: (mode: ViewMode) => void;
   isTrashActive?: boolean;
+  onToggleMobileSidebar?: () => void;
 }
 
 export const TopBar: React.FC<TopBarProps> = React.memo(({
@@ -33,6 +34,7 @@ export const TopBar: React.FC<TopBarProps> = React.memo(({
   viewMode,
   onViewModeChange,
   isTrashActive = false,
+  onToggleMobileSidebar,
 }) => {
   const [copied, setCopied] = useState(false);
   const [isSortOpen, setIsSortOpen] = useState(false);
@@ -78,27 +80,52 @@ export const TopBar: React.FC<TopBarProps> = React.memo(({
 
   return (
     <div className="sticky top-0 z-20 bg-app/95 backdrop-blur-md border-b border-border">
-      <div className="px-6 py-4 flex flex-col lg:flex-row items-stretch lg:items-center justify-between gap-4">
-        {/* Project Header Info */}
-        <div className="flex items-center gap-3">
-          <h1 className="text-lg font-semibold text-zinc-100 tracking-tight flex items-center gap-2">
-            {isTrashActive && <Trash2 className="w-4 h-4 text-rose-400" />}
-            <span>{isTrashActive ? t('trash') : project.name}</span>
-          </h1>
-          <span className="text-xs font-mono text-zinc-500">
-            {isTrashActive
-              ? `${totalCount} ${t('trash').toLowerCase()}`
-              : totalCount > 0
-              ? t('completedFraction', { completed: completedCount, total: totalCount })
-              : t('zeroTasks')}
-          </span>
+      <div className="px-3.5 sm:px-6 py-3 sm:py-4 flex flex-col md:flex-row items-stretch md:items-center justify-between gap-3 sm:gap-4">
+        {/* Project Header Info + Hamburger on mobile */}
+        <div className="flex items-center justify-between gap-3 min-w-0">
+          <div className="flex items-center gap-2.5 min-w-0">
+            {/* Sleek Hamburger button - Mobile only (< md) */}
+            <button
+              type="button"
+              onClick={onToggleMobileSidebar}
+              className="md:hidden p-1.5 text-zinc-400 hover:text-zinc-100 bg-card border border-border hover:border-border-active rounded-lg transition-colors flex-shrink-0 shadow-subtle flex items-center justify-center"
+              title="Open navigation menu"
+              aria-label="Open navigation menu"
+            >
+              <Menu className="w-4 h-4 stroke-[1.8]" />
+            </button>
+
+            <h1 className="text-base sm:text-lg font-semibold text-zinc-100 tracking-tight flex items-center gap-2 truncate">
+              {isTrashActive && <Trash2 className="w-4 h-4 text-rose-400 flex-shrink-0" />}
+              <span className="truncate">{isTrashActive ? t('trash') : project.name}</span>
+            </h1>
+            <span className="text-xs font-mono text-zinc-500 flex-shrink-0">
+              {isTrashActive
+                ? `${totalCount} ${t('trash').toLowerCase()}`
+                : totalCount > 0
+                ? t('completedFraction', { completed: completedCount, total: totalCount })
+                : t('zeroTasks')}
+            </span>
+          </div>
+
+          {/* On Mobile: New Task Button right in top row for easy 1-tap thumb reach */}
+          {!isTrashActive && (
+            <button
+              type="button"
+              onClick={onQuickNewTask}
+              className="md:hidden flex items-center gap-1 px-2.5 py-1.5 rounded-lg bg-accent text-white text-xs font-medium hover:bg-accent-hover transition-colors shadow-subtle flex-shrink-0"
+            >
+              <Plus className="w-3.5 h-3.5 stroke-[2.2]" />
+              <span>{t('newTask')}</span>
+            </button>
+          )}
         </div>
 
-        {/* Action Controls: View Toggle, Search, Tag filter, Custom Sort Dropdown, Share, New Task */}
-        <div className="flex items-center gap-2.5 flex-wrap">
+        {/* Action Controls: View Toggle, Active Tag, Search, Sort, Share, Desktop New Task */}
+        <div className="flex items-center gap-2 flex-wrap sm:flex-nowrap">
           {/* View Toggle: List vs Board */}
           {!isTrashActive && (
-            <div className="flex items-center bg-card border border-border rounded-lg p-0.5 text-zinc-400">
+            <div className="flex items-center bg-card border border-border rounded-lg p-0.5 text-zinc-400 flex-shrink-0">
               <button
                 type="button"
                 onClick={() => onViewModeChange('list')}
@@ -128,29 +155,29 @@ export const TopBar: React.FC<TopBarProps> = React.memo(({
 
           {/* Active Tag Filter */}
           {selectedTag && !isTrashActive && (
-            <div className="flex items-center gap-1.5 px-2 py-1 bg-card border border-border rounded-md text-xs text-zinc-300 font-mono">
+            <div className="flex items-center gap-1.5 px-2 py-1 bg-card border border-border rounded-md text-xs text-zinc-300 font-mono flex-shrink-0">
               <span>#{selectedTag}</span>
-              <button onClick={onClearTag} className="text-zinc-500 hover:text-zinc-100">
+              <button type="button" onClick={onClearTag} className="text-zinc-500 hover:text-zinc-100 p-0.5">
                 <X className="w-3 h-3" />
               </button>
             </div>
           )}
 
-          {/* Search Box */}
-          <div className="relative flex items-center">
+          {/* Search Box: flex-1 on mobile so it expands cleanly to fill row space, sm:w-44 on desktop */}
+          <div className="relative flex items-center flex-1 sm:flex-initial min-w-[120px] sm:w-44">
             <Search className="w-3.5 h-3.5 text-zinc-500 absolute left-2.5 pointer-events-none" />
             <input
               type="text"
               value={searchQuery}
               onChange={(e) => onSearchChange(e.target.value)}
               placeholder={t('searchPlaceholder')}
-              className="pl-8 pr-2.5 py-1.5 w-36 sm:w-44 bg-card border border-border rounded-lg text-xs text-zinc-200 placeholder-zinc-500 outline-none focus:border-border-active"
+              className="w-full pl-8 pr-2.5 py-1.5 bg-card border border-border rounded-lg text-xs text-zinc-200 placeholder-zinc-500 outline-none focus:border-border-active transition-colors"
             />
           </div>
 
-          {/* Custom Tailwind Sort Dropdown (Zero Native Select) */}
+          {/* Custom Tailwind Sort Dropdown */}
           {!isTrashActive && (
-            <div ref={sortRef} className="relative">
+            <div ref={sortRef} className="relative flex-shrink-0">
               <button
                 type="button"
                 onClick={() => setIsSortOpen((prev) => !prev)}
@@ -159,7 +186,7 @@ export const TopBar: React.FC<TopBarProps> = React.memo(({
                 }`}
               >
                 <SlidersHorizontal className="w-3.5 h-3.5 text-zinc-500" />
-                <span>{currentSortLabel}</span>
+                <span className="hidden sm:inline">{currentSortLabel}</span>
                 <ChevronDown className={`w-3 h-3 text-zinc-500 transition-transform ${isSortOpen ? 'rotate-180' : ''}`} />
               </button>
 
@@ -191,14 +218,15 @@ export const TopBar: React.FC<TopBarProps> = React.memo(({
           {/* Share Button */}
           {!isTrashActive && (
             <button
+              type="button"
               onClick={handleShare}
-              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-card border border-border hover:border-border-active text-xs text-zinc-300 hover:text-zinc-100 transition-colors"
+              className="flex items-center gap-1.5 p-1.5 sm:px-3 sm:py-1.5 rounded-lg bg-card border border-border hover:border-border-active text-xs text-zinc-300 hover:text-zinc-100 transition-colors flex-shrink-0"
               title="Share real-time project URL"
             >
               {copied ? (
                 <>
                   <Check className="w-3.5 h-3.5 text-emerald-400 stroke-[2.5]" />
-                  <span className="text-emerald-400">{t('copied')}</span>
+                  <span className="text-emerald-400 text-xs hidden sm:inline">{t('copied')}</span>
                 </>
               ) : (
                 <>
@@ -209,11 +237,12 @@ export const TopBar: React.FC<TopBarProps> = React.memo(({
             </button>
           )}
 
-          {/* New Task Button */}
+          {/* New Task Button - Desktop only (hidden on mobile since it's placed in the top row) */}
           {!isTrashActive && (
             <button
+              type="button"
               onClick={onQuickNewTask}
-              className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg bg-accent text-white text-xs font-medium hover:bg-accent-hover transition-colors shadow-subtle"
+              className="hidden md:flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg bg-accent text-white text-xs font-medium hover:bg-accent-hover transition-colors shadow-subtle flex-shrink-0"
             >
               <Plus className="w-3.5 h-3.5 stroke-[2]" />
               <span>{t('newTask')}</span>

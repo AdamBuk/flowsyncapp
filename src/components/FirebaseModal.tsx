@@ -46,14 +46,19 @@ export const FirebaseModal: React.FC<FirebaseModalProps> = React.memo(({ isOpen,
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-fadeIn">
-      <div className="bg-surface border border-border w-full max-w-lg rounded-xl p-5 shadow-dropdown space-y-4">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-2.5 sm:p-4 bg-black/60 backdrop-blur-sm animate-fadeIn overflow-y-auto">
+      <div className="bg-surface border border-border w-[95%] sm:w-full sm:max-w-lg max-h-[92vh] overflow-y-auto rounded-xl sm:rounded-2xl p-4 sm:p-5 shadow-dropdown space-y-4 my-auto">
         <div className="flex items-center justify-between pb-3 border-b border-border">
           <div className="flex items-center gap-2 text-zinc-100 font-medium text-sm">
             <Cloud className="w-4 h-4 text-accent" />
             <span>{t('firebaseModalTitle')}</span>
           </div>
-          <button onClick={onClose} className="text-zinc-500 hover:text-zinc-200" title={t('close')}>
+          <button
+            type="button"
+            onClick={onClose}
+            className="p-1 -mr-1 text-zinc-400 hover:text-zinc-100 hover:bg-card rounded-lg transition-colors"
+            title={t('close')}
+          >
             <X className="w-4 h-4" />
           </button>
         </div>
@@ -133,13 +138,13 @@ export const FirebaseModal: React.FC<FirebaseModalProps> = React.memo(({ isOpen,
               <button
                 type="button"
                 onClick={onClose}
-                className="px-3 py-1.5 bg-card border border-border text-zinc-300 text-xs rounded-lg hover:text-zinc-100"
+                className="px-3.5 py-2 sm:py-1.5 bg-card border border-border text-zinc-300 text-xs rounded-lg hover:text-zinc-100 min-h-[36px] sm:min-h-0 transition-colors"
               >
                 {t('close')}
               </button>
               <button
                 type="submit"
-                className="px-3.5 py-1.5 bg-accent text-white text-xs font-medium rounded-lg hover:bg-accent-hover flex items-center gap-1.5"
+                className="px-4 py-2 sm:py-1.5 bg-accent text-white text-xs font-medium rounded-lg hover:bg-accent-hover flex items-center gap-1.5 shadow-subtle min-h-[36px] sm:min-h-0 transition-colors"
               >
                 {savedSuccess ? (
                   <>

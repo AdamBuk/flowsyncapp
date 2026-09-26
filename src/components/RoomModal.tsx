@@ -30,14 +30,18 @@ export const RoomModal: React.FC<RoomModalProps> = ({
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-fadeIn">
-      <div className="bg-surface border border-border w-full max-w-md rounded-xl p-5 shadow-dropdown space-y-4">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-2.5 sm:p-4 bg-black/60 backdrop-blur-sm animate-fadeIn overflow-y-auto">
+      <div className="bg-surface border border-border w-[95%] sm:w-full sm:max-w-md max-h-[92vh] overflow-y-auto rounded-xl sm:rounded-2xl p-4 sm:p-5 shadow-dropdown space-y-4 my-auto">
         <div className="flex items-center justify-between pb-3 border-b border-border">
           <div className="flex items-center gap-2 text-zinc-100 font-medium text-sm">
             <Users className="w-4 h-4 text-accent" />
             <span>Shared Real-Time Rooms</span>
           </div>
-          <button onClick={onClose} className="text-zinc-500 hover:text-zinc-200">
+          <button
+            type="button"
+            onClick={onClose}
+            className="p-1 -mr-1 text-zinc-400 hover:text-zinc-100 hover:bg-card rounded-lg transition-colors"
+          >
             <X className="w-4 h-4" />
           </button>
         </div>

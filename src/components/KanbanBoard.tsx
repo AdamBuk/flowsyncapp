@@ -96,7 +96,7 @@ const KanbanColumn: React.FC<KanbanColumnProps> = React.memo(({
       onDragOver={handleDragOver}
       onDragLeave={handleDragLeave}
       onDrop={handleDrop}
-      className={`flex flex-col flex-1 min-w-[280px] bg-card/25 border border-border rounded-2xl p-3.5 transition-all duration-200 select-none ${
+      className={`flex flex-col flex-1 w-full min-w-0 md:min-w-[280px] bg-card/25 border border-border rounded-2xl p-3 sm:p-3.5 transition-all duration-200 select-none ${
         isDragOver ? 'bg-accent/[0.04] ring-1 ring-accent/30 border-accent/40' : ''
       }`}
     >
@@ -113,11 +113,12 @@ const KanbanColumn: React.FC<KanbanColumnProps> = React.memo(({
         </div>
 
         <button
+          type="button"
           onClick={() => setIsAdding(!isAdding)}
-          className="flex items-center gap-1 text-[11px] text-zinc-500 hover:text-zinc-200 transition-colors"
+          className="flex items-center gap-1 px-2 py-1 -mr-1 text-xs text-zinc-400 hover:text-zinc-200 hover:bg-card/60 rounded-md transition-colors min-h-[28px]"
           title={t('add')}
         >
-          <Plus className="w-3 h-3" />
+          <Plus className="w-3.5 h-3.5" />
           <span>{t('add')}</span>
         </button>
       </div>
@@ -140,7 +141,7 @@ const KanbanColumn: React.FC<KanbanColumnProps> = React.memo(({
       )}
 
       {/* Task Stack */}
-      <div className="flex-1 space-y-2.5 overflow-y-auto max-h-[calc(100vh-220px)] pr-0.5">
+      <div className="flex-1 space-y-2.5 overflow-y-auto max-h-[480px] md:max-h-[calc(100vh-220px)] pr-0.5">
         {tasks.length > 0 ? (
           tasks.map((task) => (
             <TaskCard
@@ -155,7 +156,7 @@ const KanbanColumn: React.FC<KanbanColumnProps> = React.memo(({
           ))
         ) : (
           !isAdding && (
-            <div className="py-12 text-center border border-dashed border-border/40 rounded-xl text-zinc-600 text-xs font-mono">
+            <div className="py-10 text-center border border-dashed border-border/40 rounded-xl text-zinc-600 text-xs font-mono">
               {t('noTasksInSection', { section: title })}
             </div>
           )
@@ -181,7 +182,7 @@ export const KanbanBoard: React.FC<KanbanBoardProps> = React.memo(({
   const { t } = useI18n();
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-3 gap-5 items-start">
+    <div className="flex flex-col md:grid md:grid-cols-3 gap-4 md:gap-5 items-stretch md:items-start w-full">
       <KanbanColumn
         status="todo"
         title={t('todo')}

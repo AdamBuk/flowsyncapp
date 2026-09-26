@@ -116,11 +116,12 @@ export const TrashView: React.FC<TrashViewProps> = React.memo(({
                   </div>
                 </div>
 
-                {/* Hover Actions: Restore & Permanent Delete */}
-                <div className="flex items-center gap-1.5 flex-shrink-0 opacity-80 group-hover:opacity-100 transition-opacity">
+                {/* Actions: Restore & Permanent Delete (visible on mobile, hover on desktop) */}
+                <div className="flex items-center gap-1.5 flex-shrink-0 opacity-100 sm:opacity-80 sm:group-hover:opacity-100 transition-opacity">
                   <button
+                    type="button"
                     onClick={() => onRestore(task.id, task.projectId)}
-                    className="flex items-center gap-1 px-2.5 py-1 rounded-md bg-surface border border-border hover:border-accent hover:text-accent text-zinc-300 text-xs font-medium transition-colors shadow-subtle"
+                    className="flex items-center gap-1 px-2.5 py-1.5 sm:py-1 rounded-md bg-surface border border-border hover:border-accent hover:text-accent text-zinc-300 text-xs font-medium transition-colors shadow-subtle min-h-[28px] sm:min-h-0"
                     title={t('restore')}
                   >
                     <RotateCcw className="w-3 h-3" />
@@ -128,8 +129,9 @@ export const TrashView: React.FC<TrashViewProps> = React.memo(({
                   </button>
 
                   <button
+                    type="button"
                     onClick={() => handlePermanentDelete(task.id, task.projectId)}
-                    className="p-1.5 rounded-md text-zinc-500 hover:text-rose-400 hover:bg-rose-500/10 transition-colors"
+                    className="p-2 sm:p-1.5 rounded-md text-zinc-500 hover:text-rose-400 hover:bg-rose-500/10 transition-colors min-w-[28px] min-h-[28px] flex items-center justify-center"
                     title={t('deletePermanently')}
                   >
                     <Trash2 className="w-3.5 h-3.5 stroke-[1.8]" />

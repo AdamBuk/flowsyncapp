@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { Layers, Plus, Hash, Trash2, Cloud, Users } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { Layers, Plus, Hash, Trash2, Cloud, Users, X } from 'lucide-react';
 import { Project } from '../types';
 import { realtimeSync } from '../services/firebase';
 import { useI18n } from '../i18n';
@@ -16,6 +16,8 @@ interface SidebarProps {
   onDeleteProject: (projectId: string) => void;
   onOpenFirebaseModal: () => void;
   onOpenTeamModal: () => void;
+  isMobileOpen?: boolean;
+  onCloseMobile?: () => void;
 }
 
 export const Sidebar: React.FC<SidebarProps> = React.memo(({
@@ -30,11 +32,23 @@ export const Sidebar: React.FC<SidebarProps> = React.memo(({
   onDeleteProject,
   onOpenFirebaseModal,
   onOpenTeamModal,
+  isMobileOpen = false,
+  onCloseMobile,
 }) => {
   const [isCreating, setIsCreating] = useState(false);
   const [newProjectName, setNewProjectName] = useState('');
   const isCloud = realtimeSync.isCloudConnected();
   const { language, setLanguage, t } = useI18n();
+
+  // Close mobile drawer on Escape key press
+  useEffect(() => {
+    if (!isMobileOpen) return;
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') onCloseMobile?.();
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [isMobileOpen, onCloseMobile]);
 
   const handleCreate = (e: React.FormEvent) => {
     e.preventDefault();
@@ -42,12 +56,33 @@ export const Sidebar: React.FC<SidebarProps> = React.memo(({
       onCreateProject(newProjectName.trim());
       setNewProjectName('');
       setIsCreating(false);
+      onCloseMobile?.();
     }
   };
 
-  return (
-    <aside className="w-64 flex-shrink-0 h-screen bg-surface border-r border-border flex flex-col justify-between select-none">
-      <div className="p-4 space-y-6 overflow-y-auto">
+  const handleSelectProjectAndClose = (id: string) => {
+    onSelectProject(id);
+    onCloseMobile?.();
+  };
+
+  const handleSelectTrashAndClose = () => {
+    onSelectTrash();
+    onCloseMobile?.();
+  };
+
+  const handleOpenTeamModalAndClose = () => {
+    onOpenTeamModal();
+    onCloseMobile?.();
+  };
+
+  const handleOpenFirebaseModalAndClose = () => {
+    onOpenFirebaseModal();
+    onCloseMobile?.();
+  };
+
+  const renderContent = (isMobile: boolean = false) => (
+    <>
+      <div className="p-4 space-y-6 overflow-y-auto flex-1">
         {/* Workspace Brand Header */}
         <div className="flex items-center justify-between px-2 py-1.5 text-zinc-100 font-semibold tracking-tight text-sm">
           <div className="flex items-center gap-2.5 truncate">
@@ -57,31 +92,48 @@ export const Sidebar: React.FC<SidebarProps> = React.memo(({
             <span className="truncate">{t('workspace')}</span>
           </div>
 
-          {/* Minimalist Language Switcher EN / CZ */}
-          <div className="flex items-center bg-card border border-border rounded-md p-0.5 text-[11px] font-mono">
-            <button
-              onClick={() => setLanguage('en')}
-              className={`px-1.5 py-0.5 rounded transition-colors ${
-                language === 'en'
-                  ? 'bg-zinc-800 text-zinc-100 font-bold'
-                  : 'text-zinc-500 hover:text-zinc-300'
-              }`}
-              title="English"
-            >
-              EN
-            </button>
-            <span className="text-zinc-600 px-0.5">/</span>
-            <button
-              onClick={() => setLanguage('cz')}
-              className={`px-1.5 py-0.5 rounded transition-colors ${
-                language === 'cz'
-                  ? 'bg-zinc-800 text-zinc-100 font-bold'
-                  : 'text-zinc-500 hover:text-zinc-300'
-              }`}
-              title="Čeština"
-            >
-              CZ
-            </button>
+          <div className="flex items-center gap-2">
+            {/* Minimalist Language Switcher EN / CZ */}
+            <div className="flex items-center bg-card border border-border rounded-md p-0.5 text-[11px] font-mono">
+              <button
+                type="button"
+                onClick={() => setLanguage('en')}
+                className={`px-1.5 py-0.5 rounded transition-colors ${
+                  language === 'en'
+                    ? 'bg-zinc-800 text-zinc-100 font-bold'
+                    : 'text-zinc-500 hover:text-zinc-300'
+                }`}
+                title="English"
+              >
+                EN
+              </button>
+              <span className="text-zinc-600 px-0.5">/</span>
+              <button
+                type="button"
+                onClick={() => setLanguage('cz')}
+                className={`px-1.5 py-0.5 rounded transition-colors ${
+                  language === 'cz'
+                    ? 'bg-zinc-800 text-zinc-100 font-bold'
+                    : 'text-zinc-500 hover:text-zinc-300'
+                }`}
+                title="Čeština"
+              >
+                CZ
+              </button>
+            </div>
+
+            {/* Mobile Close Button (X) */}
+            {isMobile && (
+              <button
+                type="button"
+                onClick={onCloseMobile}
+                className="p-1.5 text-zinc-400 hover:text-zinc-100 hover:bg-card border border-border/80 rounded-md transition-colors"
+                title={t('close')}
+                aria-label="Close sidebar"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            )}
           </div>
         </div>
 
@@ -90,6 +142,7 @@ export const Sidebar: React.FC<SidebarProps> = React.memo(({
           <div className="flex items-center justify-between px-2 text-[11px] font-mono text-zinc-500 uppercase tracking-wider">
             <span>{t('projectsAndLists')}</span>
             <button
+              type="button"
               onClick={() => setIsCreating(true)}
               className="p-1 hover:text-zinc-200 transition-colors rounded"
               title="Create new project"
@@ -124,8 +177,8 @@ export const Sidebar: React.FC<SidebarProps> = React.memo(({
               return (
                 <div
                   key={proj.id}
-                  onClick={() => onSelectProject(proj.id)}
-                  className={`group flex items-center justify-between px-2.5 py-1.5 rounded-md text-xs cursor-pointer transition-colors ${
+                  onClick={() => handleSelectProjectAndClose(proj.id)}
+                  className={`group flex items-center justify-between px-2.5 py-2 rounded-md text-xs cursor-pointer transition-colors ${
                     isActive
                       ? 'bg-card text-zinc-100 font-medium border border-border/80'
                       : 'text-zinc-400 hover:text-zinc-200 hover:bg-card/40'
@@ -144,7 +197,7 @@ export const Sidebar: React.FC<SidebarProps> = React.memo(({
                         e.stopPropagation();
                         onDeleteProject(proj.id);
                       }}
-                      className="p-1 text-rose-500/70 hover:text-rose-400 opacity-70 group-hover:opacity-100 transition-opacity rounded hover:bg-rose-500/15"
+                      className="p-1.5 text-rose-500/70 hover:text-rose-400 opacity-80 sm:opacity-70 sm:group-hover:opacity-100 transition-opacity rounded hover:bg-rose-500/15"
                       title="Delete project"
                     >
                       <Trash2 className="w-3.5 h-3.5 stroke-[1.8]" />
@@ -158,10 +211,11 @@ export const Sidebar: React.FC<SidebarProps> = React.memo(({
       </div>
 
       {/* Bottom Nav: Team, Trash Link & Real-time Status */}
-      <div className="p-3 border-t border-border space-y-1.5">
+      <div className="p-3 border-t border-border space-y-1.5 flex-shrink-0">
         {/* Manage Team Navigation Link */}
         <button
-          onClick={onOpenTeamModal}
+          type="button"
+          onClick={handleOpenTeamModalAndClose}
           className="w-full flex items-center justify-between px-2.5 py-2 rounded-lg text-xs transition-colors text-zinc-400 hover:text-zinc-200 hover:bg-card/40 border border-transparent"
           title={t('manageTeam')}
         >
@@ -178,7 +232,8 @@ export const Sidebar: React.FC<SidebarProps> = React.memo(({
 
         {/* Trash Navigation Link */}
         <button
-          onClick={onSelectTrash}
+          type="button"
+          onClick={handleSelectTrashAndClose}
           className={`w-full flex items-center justify-between px-2.5 py-2 rounded-lg text-xs transition-colors ${
             isTrashActive
               ? 'bg-card text-rose-300 font-medium border border-rose-500/30 shadow-subtle'
@@ -199,7 +254,8 @@ export const Sidebar: React.FC<SidebarProps> = React.memo(({
 
         {/* Real-time Cloud Sync */}
         <button
-          onClick={onOpenFirebaseModal}
+          type="button"
+          onClick={handleOpenFirebaseModalAndClose}
           className="w-full flex items-center justify-between px-2.5 py-2 rounded-lg bg-card/60 border border-border hover:border-border-active text-xs text-zinc-400 hover:text-zinc-200 transition-colors"
         >
           <div className="flex items-center gap-2">
@@ -214,7 +270,37 @@ export const Sidebar: React.FC<SidebarProps> = React.memo(({
           <Cloud className="w-3.5 h-3.5 text-zinc-500" />
         </button>
       </div>
-    </aside>
+    </>
+  );
+
+  return (
+    <>
+      {/* Desktop Sidebar (hidden on mobile < md) */}
+      <aside className="hidden md:flex w-64 flex-shrink-0 h-screen bg-surface border-r border-border flex-col justify-between select-none">
+        {renderContent(false)}
+      </aside>
+
+      {/* Mobile Drawer Overlay and Sidebar */}
+      {isMobileOpen && (
+        <div className="fixed inset-0 z-50 md:hidden">
+          {/* Subtle Dark Backdrop Blur - clicking outside closes drawer */}
+          <div
+            onClick={onCloseMobile}
+            className="fixed inset-0 bg-black/60 backdrop-blur-sm animate-fadeIn"
+            aria-hidden="true"
+          />
+
+          {/* Drawer Panel sliding from left */}
+          <aside
+            className="fixed inset-y-0 left-0 w-72 max-w-[85vw] h-full bg-surface border-r border-border flex flex-col justify-between select-none shadow-2xl animate-slideRight z-50"
+            role="dialog"
+            aria-modal="true"
+          >
+            {renderContent(true)}
+          </aside>
+        </div>
+      )}
+    </>
   );
 });
 
