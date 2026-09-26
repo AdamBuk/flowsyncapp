@@ -11,6 +11,12 @@ export interface Translations {
   firestoreCloud: string;
   languageLabel: string;
   trash: string;
+  team: string;
+  manageTeam: string;
+  teamDescription: string;
+  addMemberPlaceholder: string;
+  addMemberBtn: string;
+  noMembersYet: string;
 
   // Top Bar & Views
   completedFraction: string;
@@ -108,6 +114,12 @@ const translations: Record<Language, Translations> = {
     firestoreCloud: 'Firestore Cloud',
     languageLabel: 'Language',
     trash: 'Trash',
+    team: 'Team',
+    manageTeam: 'Manage Team',
+    teamDescription: 'Add or remove team members. Synced across all devices in real-time.',
+    addMemberPlaceholder: 'Enter team member name...',
+    addMemberBtn: 'Add',
+    noMembersYet: 'No team members added yet',
 
     completedFraction: '{completed}/{total} completed',
     zeroTasks: '0 tasks',
@@ -196,6 +208,12 @@ const translations: Record<Language, Translations> = {
     firestoreCloud: 'Firestore Cloud',
     languageLabel: 'Jazyk',
     trash: 'Koš',
+    team: 'Tým',
+    manageTeam: 'Správa týmu',
+    teamDescription: 'Přidávejte nebo odebírejte členy týmu. Synchronizováno v reálném čase.',
+    addMemberPlaceholder: 'Zadejte jméno člena týmu...',
+    addMemberBtn: 'Přidat',
+    noMembersYet: 'Zatím nebyli přidáni žádní členové týmu',
 
     completedFraction: '{completed}/{total} dokončeno',
     zeroTasks: '0 úkolů',

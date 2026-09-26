@@ -209,6 +209,16 @@ export const TaskCard: React.FC<TaskCardProps> = React.memo(({
               </span>
             )}
 
+            {/* Assignee Avatar */}
+            {task.assignee && typeof task.assignee === 'string' && task.assignee.trim() && (
+              <span
+                className="flex items-center justify-center w-5 h-5 rounded-full bg-zinc-800 text-[10px] text-zinc-300 border border-zinc-700 flex-shrink-0 font-medium select-none"
+                title={`${t('assignee')}: ${task.assignee}`}
+              >
+                {task.assignee.trim().charAt(0).toUpperCase()}
+              </span>
+            )}
+
             {/* Subtask Progress Indicator */}
             {subtasksRatio && (
               <div

@@ -21,6 +21,14 @@ export interface Project {
   createdAt: number;
 }
 
+export interface TeamMember {
+  id: string;
+  name: string;
+  createdAt: number;
+}
+
+export const DEFAULT_TEAM_MEMBERS = ['Adam', 'Dotzik', 'Ben', 'Šimon', 'Šatrum'] as const;
+
 export interface Task {
   id: string;
   projectId: string;
@@ -30,7 +38,7 @@ export interface Task {
   priority: Priority;
   tags: string[];
   dueDate?: string | null;
-  assignee?: UserAssignee | null;
+  assignee?: string;
   subtasks: Subtask[];
   order?: number;
   rawText?: string;

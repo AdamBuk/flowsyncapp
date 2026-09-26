@@ -8,13 +8,14 @@ import {
   setDoc,
   updateDoc,
   deleteDoc,
+  deleteField,
   writeBatch,
   onSnapshot,
   query,
   where,
   Unsubscribe
 } from 'firebase/firestore';
-import { Task, Project, FirebaseCustomConfig } from '../types';
+import { Task, Project, FirebaseCustomConfig, TeamMember, DEFAULT_TEAM_MEMBERS } from '../types';
 
 export const firebaseConfig = {
   apiKey: "AIzaSyCTuv_LYoYxwm-s6A0qr2ZbJbSNAerJaJ0",
@@ -34,7 +35,12 @@ function cleanFirestoreData<T extends Record<string, any>>(obj: T): T {
   const result: any = {};
   for (const [key, value] of Object.entries(obj)) {
     if (value !== undefined) {
-      if (value !== null && typeof value === 'object' && !Array.isArray(value)) {
+      if (
+        value !== null &&
+        typeof value === 'object' &&
+        !Array.isArray(value) &&
+        !('_methodName' in value)
+      ) {
         result[key] = cleanFirestoreData(value);
       } else {
         result[key] = value;
@@ -46,6 +52,7 @@ function cleanFirestoreData<T extends Record<string, any>>(obj: T): T {
 
 class RealtimeSyncService {
   private cachedProjects: Project[] = [];
+  private cachedTeamMembers: TeamMember[] = [];
 
   constructor() {
     // Ensure default general project exists on init
@@ -241,10 +248,17 @@ class RealtimeSyncService {
 
   public async updateTask(_projectId: string, taskId: string, updates: Partial<Task>): Promise<void> {
     try {
-      await updateDoc(doc(db, 'tasks', taskId), cleanFirestoreData({
+      const dataToClean: Record<string, any> = {
         ...updates,
         updatedAt: Date.now()
-      }));
+      };
+
+      // If assignee is explicitly set to undefined or null or empty string, remove it from Firestore
+      if ('assignee' in updates && (!updates.assignee || updates.assignee === undefined)) {
+        dataToClean.assignee = deleteField();
+      }
+
+      await updateDoc(doc(db, 'tasks', taskId), cleanFirestoreData(dataToClean));
     } catch (err) {
       console.error('[SyncService] updateTask error:', err);
       throw err;
@@ -309,6 +323,86 @@ class RealtimeSyncService {
 
   public async deleteTask(projectId: string, taskId: string): Promise<void> {
     await this.softDeleteTask(projectId, taskId);
+  }
+
+  // --- TEAM MEMBERS REALTIME SYNC ---
+
+  public subscribeToTeamMembers(callback: (members: TeamMember[]) => void): Unsubscribe {
+    const colRef = collection(db, 'teamMembers');
+
+    if (this.cachedTeamMembers.length > 0) {
+      callback(this.cachedTeamMembers);
+    }
+
+    const unsub = onSnapshot(
+      colRef,
+      async (snapshot) => {
+        if (snapshot.empty) {
+          // Initialize with default initial team members if empty
+          const batch = writeBatch(db);
+          const initialList: TeamMember[] = [];
+          const now = Date.now();
+          DEFAULT_TEAM_MEMBERS.forEach((name, idx) => {
+            const memberId = 'member_' + now + '_' + idx;
+            const memberDoc: TeamMember = {
+              id: memberId,
+              name,
+              createdAt: now + idx,
+            };
+            batch.set(doc(db, 'teamMembers', memberId), memberDoc);
+            initialList.push(memberDoc);
+          });
+          try {
+            await batch.commit();
+          } catch (e) {
+            console.error('[SyncService] Error seeding default team members:', e);
+          }
+          this.cachedTeamMembers = initialList;
+          callback(initialList);
+          return;
+        }
+
+        const members: TeamMember[] = [];
+        snapshot.forEach((d) => {
+          members.push({ id: d.id, ...(d.data() as Omit<TeamMember, 'id'>) });
+        });
+        members.sort((a, b) => a.createdAt - b.createdAt);
+        this.cachedTeamMembers = members;
+        callback(members);
+      },
+      (error) => {
+        console.error('[SyncService] subscribeToTeamMembers onSnapshot error:', error);
+      }
+    );
+
+    return unsub;
+  }
+
+  public async addTeamMember(name: string): Promise<TeamMember> {
+    const trimmed = name.trim();
+    if (!trimmed) throw new Error('Member name cannot be empty');
+    const now = Date.now();
+    const newMember: TeamMember = {
+      id: 'member_' + now + '_' + Math.random().toString(36).substring(2, 6),
+      name: trimmed,
+      createdAt: now,
+    };
+    try {
+      await setDoc(doc(db, 'teamMembers', newMember.id), cleanFirestoreData(newMember));
+      return newMember;
+    } catch (err) {
+      console.error('[SyncService] addTeamMember error:', err);
+      throw err;
+    }
+  }
+
+  public async deleteTeamMember(memberId: string): Promise<void> {
+    try {
+      await deleteDoc(doc(db, 'teamMembers', memberId));
+    } catch (err) {
+      console.error('[SyncService] deleteTeamMember error:', err);
+      throw err;
+    }
   }
 }
 

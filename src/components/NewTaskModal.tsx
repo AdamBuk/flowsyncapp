@@ -1,30 +1,34 @@
 import React, { useState } from 'react';
 import { X, Circle, CircleDot, CheckCircle2, Flag } from 'lucide-react';
-import { Priority, TaskStatus } from '../types';
+import { Priority, TaskStatus, TeamMember } from '../types';
 import { parseTaskInput } from '../utils/parser';
 import { useI18n } from '../i18n';
 import { DatePicker } from './DatePicker';
+import { AssigneeSelect } from './AssigneeSelect';
 
 interface NewTaskModalProps {
   isOpen: boolean;
   onClose: () => void;
+  teamMembers?: TeamMember[];
   onAddTask: (
     title: string,
     tags: string[],
     priority: Priority,
     status: TaskStatus,
     dueDate?: string | null,
-    description?: string
+    description?: string,
+    assignee?: string
   ) => void;
 }
 
-export const NewTaskModal: React.FC<NewTaskModalProps> = React.memo(({ isOpen, onClose, onAddTask }) => {
+export const NewTaskModal: React.FC<NewTaskModalProps> = React.memo(({ isOpen, onClose, teamMembers = [], onAddTask }) => {
   const { t } = useI18n();
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
   const [priority, setPriority] = useState<Priority>('medium');
   const [status, setStatus] = useState<TaskStatus>('todo');
   const [dueDate, setDueDate] = useState<string | null>(null);
+  const [assignee, setAssignee] = useState<string | undefined>(undefined);
 
   if (!isOpen) return null;
 
@@ -40,7 +44,8 @@ export const NewTaskModal: React.FC<NewTaskModalProps> = React.memo(({ isOpen, o
       priority,
       status,
       dueDate,
-      description.trim() || undefined
+      description.trim() || undefined,
+      assignee
     );
 
     setTitle('');
@@ -48,6 +53,7 @@ export const NewTaskModal: React.FC<NewTaskModalProps> = React.memo(({ isOpen, o
     setDueDate(null);
     setPriority('medium');
     setStatus('todo');
+    setAssignee(undefined);
     onClose();
   };
 
@@ -131,30 +137,43 @@ export const NewTaskModal: React.FC<NewTaskModalProps> = React.memo(({ isOpen, o
               </div>
             </div>
 
-            {/* Custom Priority Selector & Dark Mode DatePicker */}
+            {/* Custom Priority Selector */}
+            <div>
+              <label className="block text-[11px] font-mono text-zinc-400 uppercase tracking-wider mb-1.5">
+                {t('priority')}
+              </label>
+              <div className="grid grid-cols-4 gap-1 bg-card border border-border rounded-lg p-1">
+                {priorityOptions.map((opt) => (
+                  <button
+                    key={opt.value}
+                    type="button"
+                    onClick={() => setPriority(opt.value)}
+                    className={`flex items-center justify-center gap-1 py-1 px-1.5 rounded-md text-[11px] transition-colors select-none ${
+                      priority === opt.value
+                        ? 'bg-zinc-800 text-zinc-100 font-semibold shadow-subtle border border-border/80'
+                        : 'text-zinc-400 hover:text-zinc-200 hover:bg-zinc-800/40'
+                    }`}
+                  >
+                    <Flag className="w-2.5 h-2.5" />
+                    <span>{opt.label}</span>
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* Custom Assignee & Dark Mode DatePicker */}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-              {/* Priority */}
+              {/* Assignee */}
               <div>
                 <label className="block text-[11px] font-mono text-zinc-400 uppercase tracking-wider mb-1.5">
-                  {t('priority')}
+                  {t('assignee')}
                 </label>
-                <div className="grid grid-cols-2 gap-1 bg-card border border-border rounded-lg p-1">
-                  {priorityOptions.map((opt) => (
-                    <button
-                      key={opt.value}
-                      type="button"
-                      onClick={() => setPriority(opt.value)}
-                      className={`flex items-center justify-center gap-1 py-1 px-1.5 rounded-md text-[11px] transition-colors select-none ${
-                        priority === opt.value
-                          ? 'bg-zinc-800 text-zinc-100 font-semibold shadow-subtle border border-border/80'
-                          : 'text-zinc-400 hover:text-zinc-200 hover:bg-zinc-800/40'
-                      }`}
-                    >
-                      <Flag className="w-2.5 h-2.5" />
-                      <span>{opt.label}</span>
-                    </button>
-                  ))}
-                </div>
+                <AssigneeSelect
+                  value={assignee}
+                  onChange={setAssignee}
+                  teamMembers={teamMembers}
+                  placeholder={t('unassigned')}
+                />
               </div>
 
               {/* Custom Dark DatePicker */}

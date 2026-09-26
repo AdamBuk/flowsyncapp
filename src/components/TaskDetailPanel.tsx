@@ -10,9 +10,10 @@ import {
   CheckCircle2,
   Flag
 } from 'lucide-react';
-import { Task, Priority, TaskStatus, Subtask } from '../types';
+import { Task, Priority, TaskStatus, Subtask, TeamMember } from '../types';
 import { useI18n } from '../i18n';
 import { DatePicker } from './DatePicker';
+import { AssigneeSelect } from './AssigneeSelect';
 
 interface TaskDetailPanelProps {
   task: Task | null;
@@ -20,6 +21,7 @@ interface TaskDetailPanelProps {
   onClose: () => void;
   onUpdate: (taskId: string, updates: Partial<Task>) => void;
   onDelete: (taskId: string) => void;
+  teamMembers?: TeamMember[];
 }
 
 export const TaskDetailPanel: React.FC<TaskDetailPanelProps> = React.memo(({
@@ -28,6 +30,7 @@ export const TaskDetailPanel: React.FC<TaskDetailPanelProps> = React.memo(({
   onClose,
   onUpdate,
   onDelete,
+  teamMembers = [],
 }) => {
   if (!isOpen || !task) return null;
 
@@ -185,14 +188,14 @@ export const TaskDetailPanel: React.FC<TaskDetailPanelProps> = React.memo(({
             />
           </div>
 
-          {/* Properties Grid: Custom Priority & Custom Dark DatePicker */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 p-3 bg-card/60 border border-border rounded-xl text-xs">
+          {/* Properties Grid: Custom Priority, Assignee & Custom Dark DatePicker */}
+          <div className="space-y-3 p-3 bg-card/60 border border-border rounded-xl text-xs">
             {/* Priority Selector */}
             <div>
               <span className="text-[11px] font-mono text-zinc-500 uppercase tracking-wider block mb-1.5">
                 {t('priority')}
               </span>
-              <div className="grid grid-cols-2 gap-1 bg-surface border border-border rounded-lg p-1">
+              <div className="grid grid-cols-4 gap-1 bg-surface border border-border rounded-lg p-1">
                 {priorityOptions.map((opt) => (
                   <button
                     key={opt.value}
@@ -211,17 +214,33 @@ export const TaskDetailPanel: React.FC<TaskDetailPanelProps> = React.memo(({
               </div>
             </div>
 
-            {/* Custom Dark DatePicker */}
-            <div>
-              <span className="text-[11px] font-mono text-zinc-500 uppercase tracking-wider block mb-1.5">
-                {t('dueDate')}
-              </span>
-              <DatePicker
-                value={task.dueDate}
-                onChange={(newDueDate) => onUpdate(task.id, { dueDate: newDueDate })}
-                placeholder="Set due date..."
-                className="w-full"
-              />
+            {/* Grid for Assignee & Due Date */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              {/* Assignee Selector */}
+              <div>
+                <span className="text-[11px] font-mono text-zinc-500 uppercase tracking-wider block mb-1.5">
+                  {t('assignee')}
+                </span>
+                <AssigneeSelect
+                  value={task.assignee}
+                  onChange={(newAssignee) => onUpdate(task.id, { assignee: newAssignee })}
+                  teamMembers={teamMembers}
+                  placeholder={t('unassigned')}
+                />
+              </div>
+
+              {/* Custom Dark DatePicker */}
+              <div>
+                <span className="text-[11px] font-mono text-zinc-500 uppercase tracking-wider block mb-1.5">
+                  {t('dueDate')}
+                </span>
+                <DatePicker
+                  value={task.dueDate}
+                  onChange={(newDueDate) => onUpdate(task.id, { dueDate: newDueDate })}
+                  placeholder="Set due date..."
+                  className="w-full"
+                />
+              </div>
             </div>
           </div>
 

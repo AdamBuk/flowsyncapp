@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Layers, Plus, Hash, Trash2, Cloud } from 'lucide-react';
+import { Layers, Plus, Hash, Trash2, Cloud, Users } from 'lucide-react';
 import { Project } from '../types';
 import { realtimeSync } from '../services/firebase';
 import { useI18n } from '../i18n';
@@ -9,11 +9,13 @@ interface SidebarProps {
   activeProjectId: string;
   isTrashActive: boolean;
   deletedCount: number;
+  teamCount?: number;
   onSelectProject: (projectId: string) => void;
   onSelectTrash: () => void;
   onCreateProject: (name: string) => void;
   onDeleteProject: (projectId: string) => void;
   onOpenFirebaseModal: () => void;
+  onOpenTeamModal: () => void;
 }
 
 export const Sidebar: React.FC<SidebarProps> = React.memo(({
@@ -21,11 +23,13 @@ export const Sidebar: React.FC<SidebarProps> = React.memo(({
   activeProjectId,
   isTrashActive,
   deletedCount,
+  teamCount = 0,
   onSelectProject,
   onSelectTrash,
   onCreateProject,
   onDeleteProject,
   onOpenFirebaseModal,
+  onOpenTeamModal,
 }) => {
   const [isCreating, setIsCreating] = useState(false);
   const [newProjectName, setNewProjectName] = useState('');
@@ -153,8 +157,25 @@ export const Sidebar: React.FC<SidebarProps> = React.memo(({
         </div>
       </div>
 
-      {/* Bottom Nav: Trash Link & Real-time Status */}
-      <div className="p-3 border-t border-border space-y-2">
+      {/* Bottom Nav: Team, Trash Link & Real-time Status */}
+      <div className="p-3 border-t border-border space-y-1.5">
+        {/* Manage Team Navigation Link */}
+        <button
+          onClick={onOpenTeamModal}
+          className="w-full flex items-center justify-between px-2.5 py-2 rounded-lg text-xs transition-colors text-zinc-400 hover:text-zinc-200 hover:bg-card/40 border border-transparent"
+          title={t('manageTeam')}
+        >
+          <div className="flex items-center gap-2">
+            <Users className="w-3.5 h-3.5 text-zinc-500" />
+            <span>{t('team')}</span>
+          </div>
+          {teamCount > 0 && (
+            <span className="px-1.5 py-0.2 text-[10px] font-mono text-zinc-400 bg-surface rounded border border-border">
+              {teamCount}
+            </span>
+          )}
+        </button>
+
         {/* Trash Navigation Link */}
         <button
           onClick={onSelectTrash}

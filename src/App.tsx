@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useMemo, useCallback } from 'react';
-import { Project, Task, TaskStatus, Priority, SortOption, ViewMode } from './types';
+import { Project, Task, TaskStatus, Priority, SortOption, ViewMode, TeamMember } from './types';
 import { realtimeSync } from './services/firebase';
 import { Sidebar } from './components/Sidebar';
 import { TopBar } from './components/TopBar';
@@ -9,6 +9,7 @@ import { TrashView } from './components/TrashView';
 import { NewTaskModal } from './components/NewTaskModal';
 import { TaskDetailPanel } from './components/TaskDetailPanel';
 import { FirebaseModal } from './components/FirebaseModal';
+import { TeamManagementModal } from './components/TeamManagementModal';
 import { useI18n } from './i18n';
 
 const VIEW_MODE_STORAGE_KEY = 'flow_view_mode_v1';
@@ -39,6 +40,8 @@ export const App: React.FC = () => {
   // Modals & Slide-over states
   const [isNewTaskModalOpen, setIsNewTaskModalOpen] = useState(false);
   const [isFirebaseModalOpen, setIsFirebaseModalOpen] = useState(false);
+  const [isTeamModalOpen, setIsTeamModalOpen] = useState(false);
+  const [teamMembers, setTeamMembers] = useState<TeamMember[]>([]);
   const [selectedTaskId, setSelectedTaskId] = useState<string | null>(null);
 
   const handleViewModeChange = useCallback((mode: ViewMode) => {
@@ -133,7 +136,8 @@ export const App: React.FC = () => {
     priority: Priority,
     status: TaskStatus = 'todo',
     dueDate?: string | null,
-    description?: string
+    description?: string,
+    assignee?: string
   ) => {
     const now = Date.now();
     const newTask: Task = {
@@ -145,7 +149,7 @@ export const App: React.FC = () => {
       priority,
       tags,
       dueDate: dueDate || null,
-      assignee: null,
+      assignee: assignee || undefined,
       subtasks: [],
       order: now,
       isDeleted: false,
@@ -181,6 +185,14 @@ export const App: React.FC = () => {
   useEffect(() => {
     const unsub = realtimeSync.subscribeToTrash((trash) => {
       setDeletedTasks(trash);
+    });
+    return () => unsub();
+  }, []);
+
+  // 4. Subscribe to Team Members in Real-Time
+  useEffect(() => {
+    const unsub = realtimeSync.subscribeToTeamMembers((members) => {
+      setTeamMembers(members);
     });
     return () => unsub();
   }, []);
@@ -364,11 +376,13 @@ export const App: React.FC = () => {
         activeProjectId={activeProjectId}
         isTrashActive={isTrashActive}
         deletedCount={allDeletedTasks.length}
+        teamCount={teamMembers.length}
         onSelectProject={handleSelectProject}
         onSelectTrash={() => setIsTrashActive(true)}
         onCreateProject={handleCreateProject}
         onDeleteProject={handleDeleteProject}
         onOpenFirebaseModal={handleOpenFirebaseModal}
+        onOpenTeamModal={() => setIsTeamModalOpen(true)}
       />
 
       {/* 2. Main Content Area */}
@@ -485,6 +499,7 @@ export const App: React.FC = () => {
         onClose={handleCloseDetailPanel}
         onUpdate={handleUpdateTask}
         onDelete={handleDeleteTask}
+        teamMembers={teamMembers}
       />
 
       {/* New Task Modal */}
@@ -492,12 +507,22 @@ export const App: React.FC = () => {
         isOpen={isNewTaskModalOpen}
         onClose={handleCloseNewTaskModal}
         onAddTask={handleAddTask}
+        teamMembers={teamMembers}
       />
 
       {/* Firebase Diagnostics & Cloud Config Modal */}
       <FirebaseModal
         isOpen={isFirebaseModalOpen}
         onClose={handleCloseFirebaseModal}
+      />
+
+      {/* Team Management Modal */}
+      <TeamManagementModal
+        isOpen={isTeamModalOpen}
+        onClose={() => setIsTeamModalOpen(false)}
+        teamMembers={teamMembers}
+        onAddMember={(name) => realtimeSync.addTeamMember(name)}
+        onDeleteMember={(id) => realtimeSync.deleteTeamMember(id)}
       />
     </div>
   );
